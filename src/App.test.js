@@ -1,8 +1,19 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+beforeEach(() => localStorage.clear());
+
+test('adds a todo and saves it to localStorage', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('New todo'), { target: { value: 'Buy milk' } });
+  fireEvent.click(screen.getByText('Add'));
+
+  expect(screen.getByText('Buy milk')).toBeInTheDocument();
+  expect(JSON.parse(localStorage.getItem('todos'))[0].text).toBe('Buy milk');
+});
+
+test('loads todos from localStorage', () => {
+  localStorage.setItem('todos', JSON.stringify([{ id: 1, text: 'Saved task', completed: false }]));
+  render(<App />);
+  expect(screen.getByText('Saved task')).toBeInTheDocument();
 });
